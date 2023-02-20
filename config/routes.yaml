@@ -1,3 +1,6 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
+#main-truc:
+#    path: /truc
+#    controller: App\Controller\MainController::truc
+# il est aussi possible (plutôt que les annotations et les attributs)
+# de spécifier les URL dans ce fichier.
+# Il faudrait la fonction truc() dans la classe MainController
