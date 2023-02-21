@@ -13,7 +13,14 @@ class MainController extends AbstractController
     #[Route('/accueil', name: 'main_accueil')] //On peut avoir plusieurs URL qui renvoient à une même page
     public function home(): Response
     {
-        return $this->render('main/home.html.twig');
+        $username = "<h1>Emilie</h1>";
+        $serie = ['title' => 'Community', 'year' => 'Ouf', 'plateform' => 'NBC'];
+
+        //La clé devient le nom de la variable côté Twig
+        return $this->render('main/home.html.twig', [
+            "name"=>$username,
+            "serie"=>$serie
+        ]);
     }
 
     //Ce qui suit est un commentaire interprété = annotation -> beaucoup utilisé avant PHP 8
