@@ -1,13 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
+{% extends 'base.html.twig' %}
+
+{% block body %}
     <h1>Test !</h1>
 
     {# Création de variable #}
@@ -22,7 +15,47 @@
     {# Boucler sur un tableau #}
     {% for color in colors %}
         <div style="background-color: {{ color }}">{{ color }}</div>
+
+        {# Usage de la variable loop créée par la boucle for #}
+        {% if loop.first %}
+            <div>Première itération</div>
+        {% endif %}
+
+        {# index de l'élément et taille du tableau #}
+        <div>Index de l'élément courant : {{ loop.index }} / {{ loop.length }}</div>
+
+        {% if loop.last %}
+            <div>Dernière itération</div>
+        {% endif %}
+
+        {# si le tableau est vide, on passe dans le else dans la boucle for #}
+    {% else %}
+        <div>Pas d'élément ...</div>
     {% endfor %}
 
-</body>
-</html>
+    {# Manipulation d'objets #}
+    {% set serie = {
+        title : "The Last of Us",
+        year : 2023,
+        plateforme : "HBO"
+    } %}
+
+    <h2>Titre de la série : {{ serie.title }}</h2>
+
+    {# boucler sur un objet #}
+    {% for key, val in serie %}
+        <div>{{ key }} : {{ val }}</div>
+    {% endfor %}
+
+    {# les filtres #}
+    <br>
+    <div>{{ name | upper | lower | capitalize }} : {{ name | length }} lettres</div>
+    <br>
+    <div>{{ colors | join("-") }}</div>
+    <br>
+    {# Twig comprend "now" comme une demande de la date du jour #}
+    <div> Date d'aujourd'hui :  {{ "now" | date('d/m/y') }}</div>
+
+{% endblock %}
+
+{% block title %} {{ parent() }} | Test {% endblock %}

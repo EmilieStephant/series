@@ -10,7 +10,7 @@ class MainController extends AbstractController
 {
     //Une URL = une fonction !
     #[Route('/home', name: 'main_home')] //Attributs depuis l'arrivée de PHP 8
-    #[Route('/accueil', name: 'main_home')] //On peut avoir plusieurs URL qui renvoient à une même page
+    #[Route('/accueil', name: 'main_accueil')] //On peut avoir plusieurs URL qui renvoient à une même page
     public function home(): Response
     {
         return $this->render('main/home.html.twig');
