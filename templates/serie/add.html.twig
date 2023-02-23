@@ -6,5 +6,27 @@
 
 {% block body %}
     <h2>Add a new serie !</h2>
+
+    {# {{ form.serieForm }} #}
+
+    {# On démarre le formulaire #}
+    {{ form_start(serieForm) }}
+
+    <div class="machin">
+        {{ form_label(serieForm.name) }}
+        {{ form_widget(serieForm.name) }}
+        {{ form_errors(serieForm.name) }}
+    </div>
+
+    {# on affiche le reste du formulaire #}
+    {{ form_rest(serieForm) }}
+
+    {# Avant de terminer le formulaire, on intègre un bouton. #}
+    {# Il sera nécessairement de type submit car intégré dans le formulaire #}
+    <button> Add </button>
+
+    {# On termine le formulaire #}
+    {{ form_end(serieForm) }}
+
 {% endblock %}
 

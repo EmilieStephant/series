@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Serie;
+use App\Form\SerieType;
 use App\Repository\SerieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\DateTime;
@@ -51,12 +53,13 @@ class SerieController extends AbstractController
     }
 
     #[Route('/add', name: 'add')]
-    public function add(SerieRepository $serieRepository, EntityManagerInterface $entityManager): Response
+    public function add(SerieRepository $serieRepository, EntityManagerInterface $entityManager, Request $request): Response
+
         //L'instance de SerieRepository est préconstruite par Symfony
         // lorque je lui précise que j'en ai besoin d'une ... magie !
         //Cette instance est un Singleton !
     {
-        $serie = new Serie();
+   /*     $serie = new Serie();
         $serie2 = new Serie();
         $serie3 = new Serie();
 
@@ -99,7 +102,7 @@ class SerieController extends AbstractController
             ->setVote(8.5)
             ->setStatus("Ended");
 
-/*        dump($serie);
+           dump($serie);
 
         //Enregistrement en BDD, mise à jour automatique de l'id dans l'objet $serie
         $serieRepository->save($serie, true);
@@ -107,18 +110,39 @@ class SerieController extends AbstractController
         $serie->setName("The Last of Us");          //A partir du moment où il y a un id, il comprend tout seul qu'il s'agit d'un update et non d'un create
         $serieRepository->save($serie, true);
 
-        dump($serie);*/
+        dump($serie);
 
         $entityManager->persist($serie);
         $entityManager->persist($serie2);
         $entityManager->persist($serie3);
         $entityManager->flush();
 
-        $serieRepository->remove($serie2, true);
+        $serieRepository->remove($serie2, true);*/
 
-        //TODO Créer un formulaire d'ajout de série
+        $serie = new Serie();
+        $serieForm = $this->createForm(SerieType::class, $serie);
 
-        return $this->render('serie/add.html.twig');
+        //Méthode qui extrait les éléments du formulaire récupérés dans l'objet request
+        //Symfony va hydrater tout seul les attributs de $serie contenu dans $serieForm
+        //Il reconnaît le type
+        $serieForm->handleRequest($request);
+
+        if ($serieForm->isSubmitted()){
+        //    $serie->setDateCreated(new \DateTime());      //Précisé dans l'entité Serie avec un ORM\PrePersist
+            //Sauvegarde de la série en BDD
+            $serieRepository->save($serie, true);
+
+            $this->addFlash("success", "Serie added !");
+
+            //redirection vers la page de détails de la série nouvellement créée en BDD
+            return $this->redirectToRoute('serie_show', [
+                'id' => $serie->getId()
+            ]);
+        }
+
+        return $this->render('serie/add.html.twig', [
+            "serieForm" => $serieForm->createView()
+        ]);
     }
 
 
