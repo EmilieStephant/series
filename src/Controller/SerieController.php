@@ -15,13 +15,19 @@ use Symfony\Component\Validator\Constraints\DateTime;
 class SerieController extends AbstractController
 {
     #[Route('/list', name: 'list')]
-    public function index(SerieRepository $serieRepository): Response
+    public function list(SerieRepository $serieRepository): Response
     {
         //on récupère toutes les séries en passant par le repository
-        // $series = $serieRepository->findAll();
+         $series = $serieRepository->findAll();
 
         //$series = $serieRepository->findBy(["status"=>"ended"], ["popularity" => 'DESC'], 10, 10);    //Tri par popularité descendante
-        $series = $serieRepository->findBy([], ["vote" => 'DESC'], 50);    //Tri par vote, on récupère les 50 meilleurs
+        //$series = $serieRepository->findBy([], ["vote" => 'DESC'], 50);    //Tri par vote, on récupère les 50 meilleurs
+
+        //$series = $serieRepository->findByStatus("ended");    //Méthode magique de Symfony : on peut écrire findBy suivi du nom de n'importe quel attribut
+                                                                //On met ensuite le nom de l'attribute entre parenthèses
+                                                                //Pourtant, la méthode n'existe pas dans le repository, Symfony la comprend et la crée dynamiquement
+
+        $series = $serieRepository->findBestSeries();
 
         return $this->render('serie/list.html.twig', [
             //on envoie tout à la vue
