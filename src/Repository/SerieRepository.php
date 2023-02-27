@@ -14,8 +14,12 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Serie[]    findAll()
  * @method Serie[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
 class SerieRepository extends ServiceEntityRepository
 {
+
+    const SERIE_LIMIT = 50;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Serie::class);
@@ -40,7 +44,7 @@ class SerieRepository extends ServiceEntityRepository
         }
     }
 
-    public function findBestSeries(){
+    public function findBestSeries(int $page){
 
         //Récupération des séries les mieux notées (>8) et les plus populaires (>100), ordonnées par popularité
         //Ecriture en DQL
@@ -56,11 +60,18 @@ class SerieRepository extends ServiceEntityRepository
 
         //Ecriture en QueryBuilder
 
+        //Pagination :
+        //page 1 -> 0 à 49
+        //page 2 -> 50 à 99
+
+        $offset = ($page - 1) * self::SERIE_LIMIT;
+
         $qb = $this->createQueryBuilder('s');
         $qb->addOrderBy('s.popularity', 'DESC');
-        $qb->andWhere('s.vote>8');
-        $qb->andWhere('s.popularity>100');
-        $qb->setMaxResults(50);
+      /*  $qb->andWhere('s.vote>8');
+        $qb->andWhere('s.popularity>100');*/
+        $qb->setMaxResults(self::SERIE_LIMIT);
+        $qb->setFirstResult($offset);
 
         $query = $qb->getQuery(); //Transformation en objet de requête
 
