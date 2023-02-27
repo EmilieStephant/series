@@ -61,6 +61,7 @@ class SerieType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Serie::class,
+            'required' => false,            //Déscativation de l'option required true par défaut de HTML
         ]);
     }
 }

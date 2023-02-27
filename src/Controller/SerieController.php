@@ -127,8 +127,8 @@ class SerieController extends AbstractController
         //Il reconnaît le type
         $serieForm->handleRequest($request);
 
-        if ($serieForm->isSubmitted()){
-        //    $serie->setDateCreated(new \DateTime());      //Précisé dans l'entité Serie avec un ORM\PrePersist
+        if ($serieForm->isSubmitted() && $serieForm->isValid()){
+            //$serie->setDateCreated(new \DateTime());      //Précisé dans l'entité Serie avec un ORM\PrePersist
             //Sauvegarde de la série en BDD
             $serieRepository->save($serie, true);
 
