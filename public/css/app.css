@@ -134,10 +134,14 @@ textarea{
 }
 
 .flash-success {
-    background-color: lawngreen
+    background-color: chartreuse;
 }
 
 .flash-error {
+    background-color: red
+}
+
+.flash-warning {
     background-color: red
 }
 

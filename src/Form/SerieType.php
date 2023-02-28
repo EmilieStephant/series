@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\Image;
 
 class SerieType extends AbstractType
 {
@@ -51,7 +52,16 @@ class SerieType extends AbstractType
                 "widget" => "single_text"
             ])
             ->add('backdrop')
-            ->add('poster')
+            ->add('poster', FileType::class, [
+                "mapped" => false,  //mapped false pour indiquer que l'élément ne prend pas le type indiqué dans l'attribut
+                                    //Donc les contraintes éventuellement imposées à l'attribut ne sont pas prises en compte
+                "constraints" => [
+                    new Image([
+                        "maxSize"=> '5000k',    //La limite de transfert d'image est souvent de 5 Mo
+                        "mimeTypesMessage"=> "Format not allowed."
+                    ])
+                ]
+            ])
             ->add('tmdbId')
           //  ->add('submit', SubmitType::class)    //Déconseillé par Symfony, il vaut mieux le faire dans le Twig
         ;

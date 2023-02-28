@@ -3,6 +3,12 @@
         <li><a href="{{ path('main_home') }}">Home</a></li>
         <li><a href="{{ path('main_test') }}">Test</a></li>
         <li><a href="{{ path('serie_list') }}">List</a></li>
-        <li><a href="{{ path('serie_add') }}">New</a></li>
+        {% if app.user %}
+            <li><a href="{{ path('serie_add') }}">New Serie</a></li>
+            <li><a href="{{ path('season_add') }}">New Season</a></li>
+            <li><a href="{{ path('app_logout') }}">Log Out ({{ app.user.userIdentifier }})</a></li>
+        {% else %}
+            <li><a href="{{ path('app_login') }}">Sign in</a></li>
+        {% endif %}
     </ul>
 </nav>

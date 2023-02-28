@@ -6,7 +6,9 @@ use App\Entity\Serie;
 use App\Form\SerieType;
 use App\Repository\SerieRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,20 +22,20 @@ class SerieController extends AbstractController
     public function list(SerieRepository $serieRepository, int $page = 1): Response
     {
         //on récupère toutes les séries en passant par le repository
-         $series = $serieRepository->findAll();
+        $series = $serieRepository->findAll();
 
         //$series = $serieRepository->findBy(["status"=>"ended"], ["popularity" => 'DESC'], 10, 10);    //Tri par popularité descendante
         //$series = $serieRepository->findBy([], ["vote" => 'DESC'], 50);    //Tri par vote, on récupère les 50 meilleurs
 
         //$series = $serieRepository->findByStatus("ended");    //Méthode magique de Symfony : on peut écrire findBy suivi du nom de n'importe quel attribut
-                                                                //On met ensuite le nom de l'attribute entre parenthèses
-                                                                //Pourtant, la méthode n'existe pas dans le repository, Symfony la comprend et la crée dynamiquement
+        //On met ensuite le nom de l'attribute entre parenthèses
+        //Pourtant, la méthode n'existe pas dans le repository, Symfony la comprend et la crée dynamiquement
 
         $nbSerieMax = $serieRepository->count([]);  //nombre de séries dans ma table
-        $maxPage = ceil($nbSerieMax/SerieRepository::SERIE_LIMIT);
+        $maxPage = ceil($nbSerieMax / SerieRepository::SERIE_LIMIT);
 
-        if ($page > 0 && $page<=$maxPage)
-        $series = $serieRepository->findBestSeries($page);
+        if ($page > 0 && $page <= $maxPage)
+            $series = $serieRepository->findBestSeries($page);
         else
             throw $this->createNotFoundException("Oops ! Page not found ...");
 
@@ -47,7 +49,7 @@ class SerieController extends AbstractController
 
     #[Route('/{id}', name: 'show', requirements: ['id' => '\d+'])] //id doit être égal à un entier d'au moins un chiffre
     public function show(int $id, SerieRepository $serieRepository): Response
-    //Il aurait été possible d'écrire en paramètre : Serie $id. Ce qui veut dire que je récupère l'ensemble de l'objet à partir de son id,
+        //Il aurait été possible d'écrire en paramètre : Serie $id. Ce qui veut dire que je récupère l'ensemble de l'objet à partir de son id,
         // la récupération se fait automatiquement grâce au ParamConverter
     {
         $serie = $serieRepository->find($id);
@@ -57,75 +59,78 @@ class SerieController extends AbstractController
             throw $this->createNotFoundException("Oops ! Serie not found !");
 
         return $this->render('serie/show.html.twig',
-        ["serie"=> $serie]);
+            ["serie" => $serie]);
     }
 
     #[Route('/add', name: 'add')]
+    #[IsGranted("ROLE_USER")]         //Sécurisation de la route, accessible uniquement pour le rôle user, ce n'est pas la manière la plus efficace
     public function add(SerieRepository $serieRepository, EntityManagerInterface $entityManager, Request $request): Response
 
         //L'instance de SerieRepository est préconstruite par Symfony
         // lorque je lui précise que j'en ai besoin d'une ... magie !
         //Cette instance est un Singleton !
     {
-   /*     $serie = new Serie();
-        $serie2 = new Serie();
-        $serie3 = new Serie();
+        /*     $serie = new Serie();
+             $serie2 = new Serie();
+             $serie3 = new Serie();
 
-        $serie
-            ->setName("The Office")
-            ->setBackdrop("backdrop.png")
-            ->setDateCreated(new \DateTime())
-            ->setGenres("Comedy")
-            ->setFirstAirDate(new \DateTime('2005-03-24'))
-            ->setLastAirDate(new \DateTime('-6 month'))
-            ->setPopularity(850.52)
-            ->setPoster("poster.png")
-            ->setTmdbId(123456)
-            ->setVote(8.5)
-            ->setStatus("Ended");
+             $serie
+                 ->setName("The Office")
+                 ->setBackdrop("backdrop.png")
+                 ->setDateCreated(new \DateTime())
+                 ->setGenres("Comedy")
+                 ->setFirstAirDate(new \DateTime('2005-03-24'))
+                 ->setLastAirDate(new \DateTime('-6 month'))
+                 ->setPopularity(850.52)
+                 ->setPoster("poster.png")
+                 ->setTmdbId(123456)
+                 ->setVote(8.5)
+                 ->setStatus("Ended");
 
-        $serie2
-            ->setName("Le magicien")
-            ->setBackdrop("backdrop.png")
-            ->setDateCreated(new \DateTime())
-            ->setGenres("Comedy")
-            ->setFirstAirDate(new \DateTime('2005-03-24'))
-            ->setLastAirDate(new \DateTime('-6 month'))
-            ->setPopularity(850.52)
-            ->setPoster("poster.png")
-            ->setTmdbId(123456)
-            ->setVote(8.5)
-            ->setStatus("Ended");
+             $serie2
+                 ->setName("Le magicien")
+                 ->setBackdrop("backdrop.png")
+                 ->setDateCreated(new \DateTime())
+                 ->setGenres("Comedy")
+                 ->setFirstAirDate(new \DateTime('2005-03-24'))
+                 ->setLastAirDate(new \DateTime('-6 month'))
+                 ->setPopularity(850.52)
+                 ->setPoster("poster.png")
+                 ->setTmdbId(123456)
+                 ->setVote(8.5)
+                 ->setStatus("Ended");
 
-        $serie3
-            ->setName("Le bureau des légendes")
-            ->setBackdrop("backdrop.png")
-            ->setDateCreated(new \DateTime())
-            ->setGenres("Comedy")
-            ->setFirstAirDate(new \DateTime('2005-03-24'))
-            ->setLastAirDate(new \DateTime('-6 month'))
-            ->setPopularity(850.52)
-            ->setPoster("poster.png")
-            ->setTmdbId(123456)
-            ->setVote(8.5)
-            ->setStatus("Ended");
+             $serie3
+                 ->setName("Le bureau des légendes")
+                 ->setBackdrop("backdrop.png")
+                 ->setDateCreated(new \DateTime())
+                 ->setGenres("Comedy")
+                 ->setFirstAirDate(new \DateTime('2005-03-24'))
+                 ->setLastAirDate(new \DateTime('-6 month'))
+                 ->setPopularity(850.52)
+                 ->setPoster("poster.png")
+                 ->setTmdbId(123456)
+                 ->setVote(8.5)
+                 ->setStatus("Ended");
 
-           dump($serie);
+                dump($serie);
 
-        //Enregistrement en BDD, mise à jour automatique de l'id dans l'objet $serie
-        $serieRepository->save($serie, true);
+             //Enregistrement en BDD, mise à jour automatique de l'id dans l'objet $serie
+             $serieRepository->save($serie, true);
 
-        $serie->setName("The Last of Us");          //A partir du moment où il y a un id, il comprend tout seul qu'il s'agit d'un update et non d'un create
-        $serieRepository->save($serie, true);
+             $serie->setName("The Last of Us");          //A partir du moment où il y a un id, il comprend tout seul qu'il s'agit d'un update et non d'un create
+             $serieRepository->save($serie, true);
 
-        dump($serie);
+             dump($serie);
 
-        $entityManager->persist($serie);
-        $entityManager->persist($serie2);
-        $entityManager->persist($serie3);
-        $entityManager->flush();
+             $entityManager->persist($serie);
+             $entityManager->persist($serie2);
+             $entityManager->persist($serie3);
+             $entityManager->flush();
 
-        $serieRepository->remove($serie2, true);*/
+             $serieRepository->remove($serie2, true);*/
+
+        // $this->createAccessDeniedException();   //Vérification de l'authentification, renvoie une erreur 403, mais ce n'est pas optimal
 
         $serie = new Serie();
         $serieForm = $this->createForm(SerieType::class, $serie);
@@ -135,7 +140,23 @@ class SerieController extends AbstractController
         //Il reconnaît le type
         $serieForm->handleRequest($request);
 
-        if ($serieForm->isSubmitted() && $serieForm->isValid()){
+        if ($serieForm->isSubmitted() && $serieForm->isValid()) {
+
+            /**
+             * @var UploadedFile $file  //chargement des méthodes de la classe UploadedFile
+             */
+            $file = $serieForm->get('poster')->getData();   //Le get('poster') fait référence au nom du champ dans le formulaire (SerieType)
+
+            //Création d'un nouveau nom
+            $newFileName = $serie->getName()."-".uniqid().".".$file->guessExtension();
+                //uniqid() génère une suite alphanumérique aléatoire basée sur le timestamp actuel, ce qui la rend unique
+                //il faut toujours renommer les fichiers que l'on reçoit, car le nom peut contenir du code malveillant
+
+            //Copie du fichier dans le répertoire de sauvegarde en le renommant
+            $file->move('img/posters/series', $newFileName);
+
+            $serie->setPoster($newFileName);
+
             //$serie->setDateCreated(new \DateTime());      //Précisé dans l'entité Serie avec un ORM\PrePersist
             //Sauvegarde de la série en BDD
             $serieRepository->save($serie, true);
@@ -151,6 +172,21 @@ class SerieController extends AbstractController
         return $this->render('serie/add.html.twig', [
             "serieForm" => $serieForm->createView()
         ]);
+    }
+
+    #[Route('/remove/{id}', name: 'remove')]
+    public function remove(int $id, SerieRepository $serieRepository): Response
+    {
+        $serie = $serieRepository->find($id);
+
+        if ($serie) {
+            $serieRepository->remove($serie, true);
+            $this->addFlash("warning", "Serie successfully deleted !");
+        } else {
+            throw $this->createNotFoundException("Oops ! This serie cannot be deleted !");
+        }
+
+        return $this->redirectToRoute('serie_list');
     }
 
 
